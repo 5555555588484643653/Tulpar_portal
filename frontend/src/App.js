@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 
+const API = 'https://tulpar-portal.onrender.com';
+
 // ── Tulpar SVG logo ─────────────────────────────────────────────────────────
 const TULPAR_LOGO = (
   <svg width="38" height="38" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -230,7 +232,7 @@ export default function App() {
       }
 
       // ── CHAT: контактілерді DB-дан жүктеу ────────────────────────────────
-      axios.get(`http://localhost:5000/api/contacts/${user.id}`)
+      axios.get(`${API}/api/contacts/${user.id}`)
         .then(res => {
           const loaded = {};
           res.data.contacts.forEach(c => {
@@ -251,7 +253,7 @@ export default function App() {
       setActiveChat('Admin');
 
       // Users жүктеу
-      axios.get('http://localhost:5000/api/users').then(r => setAllUsers(r.data)).catch(() => { });
+      axios.get(`${API}/api/users`).then(r => setAllUsers(r.data)).catch(() => { });
 
       // Welcome modal
       setShowWelcome(true);
@@ -264,7 +266,7 @@ export default function App() {
     const contactId = contacts[activeChat].id;
 
     const fetchMsgs = () => {
-      axios.get(`http://localhost:5000/api/messages/${user.id}?withUser=${contactId}`)
+      axios.get(`${API}/api/messages/${user.id}?withUser=${contactId}`)
         .then(res => {
           const msgs = res.data.messages.map(m => ({
             from: m.senderId === user.id ? 'out' : 'in',
@@ -289,7 +291,7 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     const inv = setInterval(() => {
-      axios.get(`http://localhost:5000/api/contacts/${user.id}`).then(res => {
+      axios.get(`${API}/api/contacts/${user.id}`).then(res => {
          setContacts(p => {
            let changed = false;
            const next = { ...p };
@@ -319,7 +321,7 @@ export default function App() {
   const handleLogin = async () => {
     if (!loginForm.email || !loginForm.password) return;
     try {
-      const res = await axios.post('http://localhost:5000/api/login', loginForm);
+      const res = await axios.post(`${API}/api/login`, loginForm);
       sessionStorage.setItem('user', JSON.stringify(res.data.user));
       setUser(res.data.user);
     } catch { alert('Қате! Логин немесе пароль дұрыс емес.'); }
@@ -330,7 +332,7 @@ export default function App() {
     if (!resetEmail) return;
     setResetLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/reset-password', { email: resetEmail });
+      await axios.post(`${API}/api/reset-password`, { email: resetEmail });
     } catch { }
     finally {
       setResetLoading(false);
@@ -382,7 +384,7 @@ export default function App() {
       return;
     }
     try {
-      const res = await axios.post('http://localhost:5000/api/messages/send', {
+      const res = await axios.post(`${API}/api/messages/send`, {
         senderId: user.id,
         receiverId,
         text: chatInput.trim(),
@@ -408,7 +410,6 @@ export default function App() {
   // ── CHAT: контакт қосу — DB-ға ────────────────────────────────────────────
   const addContact = async () => {
     if (!newContact.name || !newContact.phone) return;
-    // allUsers ішінен email бойынша іздейміз
     const found = allUsers.find(u =>
       u.email === newContact.phone || u.fullname === newContact.name
     );
@@ -417,7 +418,7 @@ export default function App() {
       return;
     }
     try {
-      await axios.post('http://localhost:5000/api/contacts/add', {
+      await axios.post(`${API}/api/contacts/add`, {
         userId: user.id,
         contactId: found.id,
       });
@@ -447,10 +448,10 @@ export default function App() {
     if (!newUser.fullname || !newUser.email || !newUser.password) { alert('Барлық өрістерді толтырыңыз!'); return; }
     setRegisterLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/register', newUser);
+      await axios.post(`${API}/api/register`, newUser);
       alert('Қызметкер сәтті қосылды! ✅');
       setNewUser({ fullname: '', email: '', password: '', role: 'employee', department: 'IT' });
-      const r = await axios.get('http://localhost:5000/api/users');
+      const r = await axios.get(`${API}/api/users`);
       setAllUsers(r.data);
     } catch (err) {
       alert('Қате: ' + (err?.response?.data?.message || err.message));
@@ -462,7 +463,7 @@ export default function App() {
     if (!newNews.title || !newNews.content) return;
     const item = { id: Date.now(), title: newNews.title, content: newNews.content, created_at: new Date().toISOString() };
     setAnnouncements(p => [item, ...p]);
-    axios.post('http://localhost:5000/api/announcements', newNews).catch(() => { });
+    axios.post(`${API}/api/announcements`, newNews).catch(() => { });
     setNewNews({ title: '', content: '' });
     setShowAddNews(false);
   };
