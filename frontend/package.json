@@ -41,5 +41,8 @@
   },
   "engines": {
     "npm": "--legacy-peer-deps"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5"
   }
 }
