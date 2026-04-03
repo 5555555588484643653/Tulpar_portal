@@ -9,22 +9,45 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'portal_db',
-  password: process.env.DB_PASSWORD || '1234',
-  port: process.env.DB_PORT || 5432,
-});
+const poolConfig = process.env.DATABASE_URL 
+  ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+  : {
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'portal_db',
+      password: process.env.DB_PASSWORD || '1234',
+      port: process.env.DB_PORT || 5432,
+    };
+const pool = new Pool(poolConfig);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'SECRET123';
 
 // ── Migrate: add missing columns if they don't exist ──────────────────────────
 pool.query(`
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    fullname VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'employee'
+  );
   ALTER TABLE users ADD COLUMN IF NOT EXISTS department  VARCHAR(100) DEFAULT 'IT';
   ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url  TEXT;
   ALTER TABLE users ADD COLUMN IF NOT EXISTS position    VARCHAR(100) DEFAULT 'Қызметкер';
   ALTER TABLE users ADD COLUMN IF NOT EXISTS phone       VARCHAR(50);
+
+  CREATE TABLE IF NOT EXISTS announcements (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS attendance (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    check_in_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
 `).catch(err => console.warn('Migration warning (safe to ignore):', err.message));
 
 // ── Migrate: messages & contacts tables ───────────────────────────────────────
