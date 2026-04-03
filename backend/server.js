@@ -259,7 +259,7 @@ app.put('/api/user/avatar', async (req, res) => {
 app.post('/api/messages/send', async (req, res) => {
   const { senderId, receiverId, text } = req.body;
 
-  if (!senderId || !receiverId || !text?.trim())
+  if (senderId == null || receiverId == null || !text?.trim())
     return res.status(400).json({ message: 'senderId, receiverId және text міндетті' });
 
   try {
@@ -302,7 +302,7 @@ app.get('/api/messages/:userId', async (req, res) => {
   const limit    = parseInt(req.query.limit)  || 50;
   const before   = parseInt(req.query.before) || null;
 
-  if (!userId || !withUser)
+  if (isNaN(userId) || isNaN(withUser))
     return res.status(400).json({ message: 'userId және withUser міндетті' });
 
   try {
@@ -356,7 +356,7 @@ app.get('/api/messages/:userId', async (req, res) => {
 // GET /api/contacts/:userId
 app.get('/api/contacts/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId);
-  if (!userId) return res.status(400).json({ message: 'userId міндетті' });
+  if (isNaN(userId)) return res.status(400).json({ message: 'userId міндетті' });
 
   try {
     const { rows } = await pool.query(
@@ -402,7 +402,7 @@ app.get('/api/contacts/:userId', async (req, res) => {
 app.post('/api/contacts/add', async (req, res) => {
   const { userId, contactId } = req.body;
 
-  if (!userId || !contactId || userId === contactId)
+  if (userId == null || contactId == null || userId === contactId)
     return res.status(400).json({ message: 'Жарамды userId және contactId жіберіңіз' });
 
   try {
