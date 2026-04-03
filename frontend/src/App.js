@@ -146,10 +146,10 @@ export default function App() {
 
   // Login
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [showForgot, setShowForgot] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetSent, setResetSent] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
+  // const [showForgot, setShowForgot] = useState(false);
+  // const [resetEmail, setResetEmail] = useState('');
+  // const [resetSent, setResetSent] = useState(false);
+  // const [resetLoading, setResetLoading] = useState(false);
 
   // Welcome modal
   const [showWelcome, setShowWelcome] = useState(false);
@@ -328,17 +328,17 @@ export default function App() {
   };
 
   // ── PASSWORD RESET ─────────────────────────────────────────────────────────
-  const handleReset = async () => {
-    if (!resetEmail) return;
-    setResetLoading(true);
-    try {
-      await axios.post(`${API}/api/reset-password`, { email: resetEmail });
-    } catch { }
-    finally {
-      setResetLoading(false);
-      setResetSent(true);
-    }
-  };
+  // const handleReset = async () => {
+  //   if (!resetEmail) return;
+  //   setResetLoading(true);
+  //   try {
+  //     await axios.post(`${API}/api/reset-password`, { email: resetEmail });
+  //   } catch { }
+  //   finally {
+  //     setResetLoading(false);
+  //     setResetSent(true);
+  //   }
+  // };
 
   // ── TASKS ──────────────────────────────────────────────────────────────────
   const addTask = () => {
